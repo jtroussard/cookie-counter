@@ -4,10 +4,19 @@ import { toast } from "react-toastify";
 
 const PrivatePage = () => {
   const [inventory, setInventory] = useState([]);
-  const [stagedItems, setStagedItems] = useState([]);
+  const [stagedItems, setStagedItems] = useState(() => {
+    const saved = localStorage.getItem("stagedItems");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Store staged items in localStorage whenever they update
+    localStorage.setItem("stagedItems", JSON.stringify(stagedItems));
+  }, [stagedItems]);
 
   useEffect(() => {
     const fetchInventory = async () => {
@@ -83,7 +92,7 @@ const PrivatePage = () => {
     console.log(`Submitting staged items: ${JSON.stringify(stagedItems)}`);
     if (stagedItems.length === 0) return;
 
-    setLoading(true);
+    setSubmitting(true);
     setError("");
 
     try {
@@ -110,38 +119,42 @@ const PrivatePage = () => {
     } catch (err) {
       setError(`Server error, try again later: ${err}`);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
+  const handleClearStagedItems = () => {
+    setStagedItems([]);
+  };
+
   if (loading) return <p>Loading inventory...</p>;
-  // if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (submitting) return <p>Submitting staged items...</p>;
 
   return (
     <div>
-      <h1>Inventory</h1>
+      <h1>Currenty Inventory</h1>
       <ul>
         {inventory.map((item) => (
           <li key={item.id}>
             {item.name} - {item.quantity}
-            <button className="btn btn-primary"onClick={() => handleStageItem(item)} disabled={item.quantity === 0}>Stage</button>
+            <button className="btn btn-primary" onClick={() => handleStageItem(item)} disabled={item.quantity === 0}>Add</button>
           </li>
         ))}
       </ul>
 
-      <h2>Staged Items</h2>
+      <h2>Staged Cookies</h2>
       <ul>
         {stagedItems.map((item) => (
           <li key={item.id}>
             {item.name} - {item.quantity}
-            <button onClick={() => handleUnstageItem(item)}>Unstage</button>
+            <button className="btn btn-warning" onClick={() => handleUnstageItem(item)}>Remove</button>
           </li>
         ))}
       </ul>
-
-      <button onClick={handleSubmit} disabled={stagedItems.length === 0}>
-        {loading ? "Submitting..." : "Submit Staged Items"}
+      <button className="btn btn-success" onClick={handleSubmit} disabled={stagedItems.length === 0 || submitting}>
+        {loading ? "Saving..." : "Save"}
       </button>
+      <button className="btn btn-danger" onClick={() => handleClearStagedItems()} disabled={stagedItems.length === 0 || submitting}>Reset</button>
     </div>
   );
 };
