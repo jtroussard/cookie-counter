@@ -8,10 +8,12 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const PrivatePage = () => {
   const [inventory, setInventory] = useState([]);
-  const [stagedItems, setStagedItems] = useState(() => {
-    const saved = localStorage.getItem("stagedItems");
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Commented out for now because the inventory needs some localstorage refresh logic as well.
+  // const [stagedItems, setStagedItems] = useState(() => {
+  //   const saved = localStorage.getItem("stagedItems");
+  //   return saved ? JSON.parse(saved) : [];
+  // });
+  const [stagedItems, setStagedItems] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
@@ -19,10 +21,14 @@ const PrivatePage = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Store staged items in localStorage whenever they update
-    localStorage.setItem("stagedItems", JSON.stringify(stagedItems));
-  }, [stagedItems]);
+  // useEffect(() => {
+  //   localStorage.setItem("inventory", JSON.stringify(inventory));
+  // }, [inventory])
+
+  // useEffect(() => {
+  //   // Store staged items in localStorage whenever they update
+  //   localStorage.setItem("stagedItems", JSON.stringify(stagedItems));
+  // }, [stagedItems]);
 
   useEffect(() => {
     const fetchInventory = async () => {

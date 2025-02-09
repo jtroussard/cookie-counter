@@ -1,4 +1,4 @@
-import "./Loading.css";
+import "./loading.css";
 import CookieImage from "/public/Cookie.png"; // Adjust path as needed
 
 const Loading = () => {
