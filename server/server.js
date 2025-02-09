@@ -11,16 +11,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const AUTH_PASSWORD = process.env.AUTH_PASSWORD;
+const AUTH_PASSWORD = (process.env.AUTH_PASSWORD || "").trim(); // GCP secret adds a newline to the value for some reason
 const GOOGLE_SHEETS_API = process.env.GOOGLE_SHEETS_API;
-
-app.get("/debug-env", (req, res) => {
-    res.json({
-        AUTH_PASSWORD: process.env.AUTH_PASSWORD,
-        GOOGLE_SHEETS_API: process.env.GOOGLE_SHEETS_API
-    });
-});
-
 
 // Authentication route
 app.post("/auth", (req, res) => {
@@ -89,7 +81,5 @@ app.post("/submit", async (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 5174;
-console.log("AUTH_PASSWORD:", AUTH_PASSWORD);
-console.log("GOOGLE_SHEETS_API:", GOOGLE_SHEETS_API);
 
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));

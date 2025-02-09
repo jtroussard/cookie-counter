@@ -1,0 +1,24 @@
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full screen */
+    background-color: #f8f8f8; /* Optional: set background */
+  }
+  
+  .rolling-cookie {
+    width: 200px; /* Adjust size */
+    height: auto;
+    animation: rollCookie 2s linear infinite; /* Rotate continuously */
+  }
+  
+  @keyframes rollCookie {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  

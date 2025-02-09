@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Loading from "./Loading";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const PublicPage = () => {
   const [password, setPassword] = useState("");
@@ -13,7 +16,7 @@ const PublicPage = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5174/auth", {
+      const response = await fetch(`${API_URL}/auth`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
@@ -33,6 +36,8 @@ const PublicPage = () => {
       setLoading(false);
     }
   };
+
+  if (loading) return <Loading />; // can update to accept message to render during loading
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">

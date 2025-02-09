@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Modal, Button } from "react-bootstrap";
+import Loading from "./Loading";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const PrivatePage = () => {
   const [inventory, setInventory] = useState([]);
@@ -30,7 +33,7 @@ const PrivatePage = () => {
       }
 
       try {
-        const response = await fetch("http://localhost:5174/inventory", {
+        const response = await fetch(`${API_URL}/inventory`, {
           headers: { Authorization: token },
         });
 
@@ -99,7 +102,7 @@ const PrivatePage = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:5174/submit", {
+      const response = await fetch(`${API_URL}/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -154,8 +157,8 @@ const PrivatePage = () => {
     );
   }
 
-  if (loading) return <p>Loading inventory...</p>;
-  if (submitting) return <p>Submitting staged items...</p>;
+  if (loading) return <Loading />; // can update to pass a message
+  if (submitting) return <Loading />; // can update to pass a message
 
   return (
     <div className="container mt-4">
