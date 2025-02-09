@@ -12,105 +12,115 @@
 ## Cookie Counter Deployment Guide
 This document provides step-by-step instructions on setting up, updating, and deploying both the backend and frontend of the Cookie Counter app on Google Cloud Run.
 
-Prerequisites
+## Prerequisites
 Ensure you have:
 
-Google Cloud SDK (gcloud) installed and authenticated.
-The Google Cloud project set (cookie-counter-450419).
-The required billing and Cloud Run API enabled.
-A Google Container Registry (GCR) for storing container images.
-A secrets manager configured to securely store credentials.
-1️⃣ Setting Up Secrets in Google Cloud
+- Google Cloud SDK (gcloud) installed and authenticated.
+- The Google Cloud project set (cookie-counter-450419).
+- The required billing and Cloud Run API enabled.
+- A Google Container Registry (GCR) for storing container images.
+- A secrets manager configured to securely store credentials.
+
+## Setting Up Secrets in Google Cloud
 The backend relies on two secrets:
 
-AUTH_PASSWORD → Used for authentication.
-GOOGLE_SHEETS_API → URL for Google Sheets API integration.
-1.1 Creating and Storing Secrets
+- AUTH_PASSWORD → Used for authentication.
+- GOOGLE_SHEETS_API → URL for Google Sheets API integration.
+
+### Creating and Storing Secrets
 Run these commands only once to set up the secrets in Google Secret Manager:
 
-sh
-Copy
-Edit
-# Store AUTH_PASSWORD secret
+```sh
 echo -n "your-password-here" | gcloud secrets create AUTH_PASSWORD --data-file=- --replication-policy=automatic
-
-# Store GOOGLE_SHEETS_API secret
+```
+```sh
 echo -n "https://your-google-sheets-api-url" | gcloud secrets create GOOGLE_SHEETS_API --data-file=- --replication-policy=automatic
-1.2 Updating Existing Secrets
+```
+
+### Updating Existing Secrets
 If you ever need to update them:
 
-sh
-Copy
-Edit
-# Update AUTH_PASSWORD
+```sh
 echo -n "new-password" | gcloud secrets versions add AUTH_PASSWORD --data-file=-
+```
 
-# Update GOOGLE_SHEETS_API
+### Update GOOGLE_SHEETS_API
+
+```sh
 echo -n "https://new-google-sheets-api-url" | gcloud secrets versions add GOOGLE_SHEETS_API --data-file=-
-2️⃣ Backend (Server) Deployment
+```
+
+## Backend (Server) Deployment
 The backend is located in the server/ directory and deployed as a Node.js app using Google Cloud Run.
 
-2.1 Build & Push the Backend Image
-sh
-Copy
-Edit
-cd server
+### Build & Push the Backend Image
 
-# Build the Docker image
+```sh
+cd server
+```
+
+```sh
 gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-backend
-2.2 Deploy the Backend to Cloud Run
-sh
-Copy
-Edit
+```
+
+### Deploy the Backend to Cloud Run
+```sh
 gcloud run deploy cookie-counter-backend \
   --image gcr.io/cookie-counter-450419/cookie-counter-backend \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
   --set-secrets AUTH_PASSWORD=AUTH_PASSWORD:latest,GOOGLE_SHEETS_API=GOOGLE_SHEETS_API:latest
-2.3 Get the Backend URL
-sh
-Copy
-Edit
+```
+
+### Get the Backend URL
+
+```sh
 gcloud run services describe cookie-counter-backend --region us-central1 --format="value(status.url)"
-3️⃣ Frontend Deployment
+```
+
+## Frontend Deployment
 The frontend is built with Vite + React and served using Google Cloud Run.
 
-3.1 Build & Push the Frontend Image
-sh
-Copy
-Edit
-# Navigate to project root
+### Build & Push the Frontend Image
+
+```sh
 cd cookie-counter
+```
 
-# Build the frontend
+### Build the frontend
+
+```sh
 npm run build
+```
 
-# Submit the build to Google Cloud Build
+### Submit the build to Google Cloud Build
+```sh
 gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-frontend
-3.2 Deploy the Frontend to Cloud Run
-sh
-Copy
-Edit
+```
+
+### Deploy the Frontend to Cloud Run
+```sh
 gcloud run deploy cookie-counter-frontend \
   --image gcr.io/cookie-counter-450419/cookie-counter-frontend \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated
-3.3 Get the Frontend URL
-sh
-Copy
-Edit
+```
+
+### Get the Frontend URL
+```sh
 gcloud run services describe cookie-counter-frontend --region us-central1 --format="value(status.url)"
-4️⃣ Updating & Redeploying
+```
+
+## Updating & Redeploying
 If you make any code changes to the backend or frontend, you need to:
 
-Rebuild the Docker image
-Redeploy the updated version to Cloud Run
-4.1 Update the Backend
-sh
-Copy
-Edit
+- Rebuild the Docker image
+- Redeploy the updated version to Cloud Run
+
+### Update the Backend
+```sh
 cd server
 gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-backend
 
@@ -120,10 +130,10 @@ gcloud run deploy cookie-counter-backend \
   --region us-central1 \
   --allow-unauthenticated \
   --set-secrets AUTH_PASSWORD=AUTH_PASSWORD:latest,GOOGLE_SHEETS_API=GOOGLE_SHEETS_API:latest
-4.2 Update the Frontend
-sh
-Copy
-Edit
+```
+
+### Update the Frontend
+```sh
 cd cookie-counter
 npm run build
 
@@ -134,60 +144,63 @@ gcloud run deploy cookie-counter-frontend \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated
-5️⃣ Viewing Logs & Debugging
+```
+
+## Viewing Logs & Debugging
 To check logs for the backend:
 
-sh
-Copy
-Edit
+```sh
 gcloud run services logs read cookie-counter-backend --region us-central1 --limit 50
+```
+
 To check logs for the frontend:
 
-sh
-Copy
-Edit
+```sh
 gcloud run services logs read cookie-counter-frontend --region us-central1 --limit 50
+```
+
 To describe the current Cloud Run deployment:
 
-sh
-Copy
-Edit
+```sh
 gcloud run services describe cookie-counter-backend --region us-central1
 gcloud run services describe cookie-counter-frontend --region us-central1
-6️⃣ Cleaning Up (Optional)
+```
+
+## Cleaning Up (Optional)
 If you ever need to delete Cloud Run services:
 
-sh
-Copy
-Edit
+```sh
 gcloud run services delete cookie-counter-backend --region us-central1
 gcloud run services delete cookie-counter-frontend --region us-central1
+```
+
 To remove images from Google Container Registry:
 
-sh
-Copy
-Edit
+```sh
 gcloud container images delete gcr.io/cookie-counter-450419/cookie-counter-backend
 gcloud container images delete gcr.io/cookie-counter-450419/cookie-counter-frontend
+```
+
 To delete all logs:
 
-sh
-Copy
-Edit
+```sh
 gcloud logging logs delete run.googleapis.com%2Frequests
-🎯 Final Notes
-The backend and frontend run independently on Cloud Run.
-Secrets are managed securely using Google Secret Manager.
-Logs can be accessed using gcloud run services logs read.
-Updates require rebuilding and redeploying.
-🚀 Summary of Key Commands
-Action	Command
-Build Backend	gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-backend
-Deploy Backend	gcloud run deploy cookie-counter-backend --image gcr.io/cookie-counter-450419/cookie-counter-backend --platform managed --region us-central1 --allow-unauthenticated --set-secrets AUTH_PASSWORD=AUTH_PASSWORD:latest,GOOGLE_SHEETS_API=GOOGLE_SHEETS_API:latest
-Build Frontend	npm run build && gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-frontend
-Deploy Frontend	gcloud run deploy cookie-counter-frontend --image gcr.io/cookie-counter-450419/cookie-counter-frontend --platform managed --region us-central1 --allow-unauthenticated
-Check Backend Logs	gcloud run services logs read cookie-counter-backend --region us-central1 --limit 50
-Check Frontend Logs	gcloud run services logs read cookie-counter-frontend --region us-central1 --limit 50
-Get Backend URL	gcloud run services describe cookie-counter-backend --region us-central1 --format="value(status.url)"
-Get Frontend URL	gcloud run services describe cookie-counter-frontend --region us-central1 --format="value(status.url)"
-This README should make sure you never have to memorize the commands again. 🚀💪
+```
+
+## Final Notes
+- The backend and frontend run independently on Cloud Run.
+- Secrets are managed securely using Google Secret Manager.
+- Logs can be accessed using gcloud run services logs read.
+- Updates require rebuilding and redeploying.
+
+## Summary of Key Commands
+| Action              | Command |
+|---------------------|---------|
+| **Build Backend**   | `gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-backend` |
+| **Deploy Backend**  | `gcloud run deploy cookie-counter-backend --image gcr.io/cookie-counter-450419/cookie-counter-backend --platform managed --region us-central1 --allow-unauthenticated --set-secrets AUTH_PASSWORD=AUTH_PASSWORD:latest,GOOGLE_SHEETS_API=GOOGLE_SHEETS_API:latest` |
+| **Build Frontend**  | `npm run build && gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-frontend` |
+| **Deploy Frontend** | `gcloud run deploy cookie-counter-frontend --image gcr.io/cookie-counter-450419/cookie-counter-frontend --platform managed --region us-central1 --allow-unauthenticated` |
+| **Check Backend Logs** | `gcloud run services logs read cookie-counter-backend --region us-central1 --limit 50` |
+| **Check Frontend Logs** | `gcloud run services logs read cookie-counter-frontend --region us-central1 --limit 50` |
+| **Get Backend URL** | `gcloud run services describe cookie-counter-backend --region us-central1 --format="value(status.url)"` |
+| **Get Frontend URL** | `gcloud run services describe cookie-counter-frontend --region us-central1 --format="value(status.url)"` |
