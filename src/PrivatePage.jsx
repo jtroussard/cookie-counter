@@ -127,6 +127,13 @@ const PrivatePage = () => {
   };
 
   const handleClearStagedItems = () => {
+    stagedItems.forEach((item) => {
+      setInventory((prev) =>
+        prev.map((inv) =>
+          inv.id === item.id ? { ...inv, quantity: inv.quantity + item.quantity } : inv
+        )
+      );
+    })
     setStagedItems([]);
   };
 
