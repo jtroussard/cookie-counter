@@ -35,20 +35,23 @@ const PublicPage = () => {
   };
 
   return (
-    <div>
-      <h1>Enter Access Password</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter password"
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Verifing..." : "Submit"}
-        </button>
-      </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="container d-flex justify-content-center align-items-center vh-100">
+      <div className="card p-4 shadow-sm" style={{ maxWidth: "400px", width: "100%" }}>
+        <h2 className="text-center mb-3">Enter Access Password</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="password"
+            className="form-control mb-3"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter password"
+          />
+          <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+            {loading ? "Verifying..." : "Submit"}
+          </button>
+        </form>
+        {error && <p className="text-danger text-center mt-2">{error}</p>}
+      </div>
     </div>
   );
 };

@@ -51,10 +51,10 @@ const PrivatePage = () => {
 
   const handleStageItem = (item) => {
     console.log(`Staging item: ${JSON.stringify(item)}`);
-  
+
     setStagedItems((prev) => {
       const existingItem = prev.find((staged) => staged.id === item.id);
-  
+
       if (existingItem) {
         return prev.map((staged) =>
           staged.id === item.id ? { ...staged, quantity: staged.quantity + 1 } : staged
@@ -63,7 +63,7 @@ const PrivatePage = () => {
         return [...prev, { id: item.id, name: item.name, quantity: 1 }];
       }
     });
-  
+
     setInventory((prev) =>
       prev.map((inv) =>
         inv.id === item.id ? { ...inv, quantity: inv.quantity - 1 } : inv
@@ -73,20 +73,20 @@ const PrivatePage = () => {
 
   const handleUnstageItem = (item) => {
     console.log(`Unstaging item: ${JSON.stringify(item)}`);
-  
+
     setStagedItems((prev) =>
       prev.map((staged) =>
         staged.id === item.id ? { ...staged, quantity: staged.quantity - 1 } : staged
       ).filter((staged) => staged.quantity > 0)
     );
-  
+
     setInventory((prev) =>
       prev.map((inv) =>
         inv.id === item.id ? { ...inv, quantity: inv.quantity + 1 } : inv
       )
     );
   };
-  
+
 
   const handleSubmit = async () => {
     console.log(`Submitting staged items: ${JSON.stringify(stagedItems)}`);
@@ -98,7 +98,7 @@ const PrivatePage = () => {
     try {
       const response = await fetch("http://localhost:5174/submit", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           Authorization: localStorage.getItem("sessionToken")
         },
@@ -127,36 +127,69 @@ const PrivatePage = () => {
     setStagedItems([]);
   };
 
+  // Render Helper Functions
+  function renderStagedItem(item) {
+    return (
+      <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
+        {item.name} - {item.quantity}
+        <button className="btn btn-warning btn-sm" onClick={() => handleUnstageItem(item)}>Remove</button>
+      </li>
+    );
+  }
+
   if (loading) return <p>Loading inventory...</p>;
   if (submitting) return <p>Submitting staged items...</p>;
 
   return (
-    <div>
-      <h1>Currenty Inventory</h1>
-      <ul>
-        {inventory.map((item) => (
-          <li key={item.id}>
-            {item.name} - {item.quantity}
-            <button className="btn btn-primary" onClick={() => handleStageItem(item)} disabled={item.quantity === 0}>Add</button>
-          </li>
-        ))}
-      </ul>
+    <div className="container mt-4">
+      <h1 className="text-center mb-4">Cookie Counter</h1>
 
-      <h2>Staged Cookies</h2>
-      <ul>
-        {stagedItems.map((item) => (
-          <li key={item.id}>
-            {item.name} - {item.quantity}
-            <button className="btn btn-warning" onClick={() => handleUnstageItem(item)}>Remove</button>
-          </li>
-        ))}
-      </ul>
-      <button className="btn btn-success" onClick={handleSubmit} disabled={stagedItems.length === 0 || submitting}>
-        {loading ? "Saving..." : "Save"}
-      </button>
-      <button className="btn btn-danger" onClick={() => handleClearStagedItems()} disabled={stagedItems.length === 0 || submitting}>Reset</button>
+      <div className="row gy-4">
+        {/* Inventory Column */}
+        <div className="col-md-6">
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <h2 className="card-title text-center mb-3">Available Inventory</h2>
+              <ul className="list-group">
+                {inventory.map((item) => (
+                  <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
+                    {item.name} - {item.quantity}
+                    <button className="btn btn-primary btn-sm" onClick={() => handleStageItem(item)} disabled={item.quantity === 0}>
+                      Add
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Staged Items Column */}
+        <div className="col-md-6">
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <h2 className="card-title text-center mb-3">Staged Cookies</h2>
+              <ul className="list-group">
+                {stagedItems.length > 0 ? stagedItems.map(renderStagedItem) : <span className="text-muted">No Cookies Here! Click the Add buttons to stage some cookies.</span>}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Buttons Section */}
+      <div className="mt-5 text-center sticky-bottom bg-light py-3">
+        <button className="btn btn-success mx-2" onClick={handleSubmit} disabled={stagedItems.length === 0 || submitting}>
+          {submitting ? "Saving..." : "Save"}
+        </button>
+        <button className="btn btn-danger mx-2" onClick={handleClearStagedItems} disabled={stagedItems.length === 0 || submitting}>
+          Reset
+        </button>
+      </div>
+
     </div>
   );
+
 };
 
 export default PrivatePage;
