@@ -88,12 +88,14 @@ const PrivatePage = () => {
           "Content-Type": "application/json",
           Authorization: localStorage.getItem("sessionToken")
         },
-        body: JSON.stringify({ stagedItems }),
+        body: JSON.stringify(stagedItems),
       });
 
       const data = await response.json();
+      console.log(`Has the response returned yet??? ${JSON.stringify(data)}`);
 
-      if (response.ok) {
+      if (data.success) {
+        console.log("[PrivatePage] Successfully submitted staged items");
         setStagedItems([]);
       } else {
         setError(data.message || "Failed to submit staged items");
