@@ -89,4 +89,7 @@ app.post("/submit", async (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 5174;
+console.log("AUTH_PASSWORD:", AUTH_PASSWORD);
+console.log("GOOGLE_SHEETS_API:", GOOGLE_SHEETS_API);
+
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
