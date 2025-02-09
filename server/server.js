@@ -23,11 +23,6 @@ app.post("/auth", (req, res) => {
     return res.status(401).json({ success: false, message: messages.MSG_ERROR_PASSWORD });
 });
 
-// Debug route to check AUTH_PASSWORD
-app.get("/debug-auth", (req, res) => {
-    res.json({ processed: AUTH_PASSWORD, raw: process.env.AUTH_PASSWORD });
-});
-
 // Fetch inventory data
 app.get("/inventory", async (req, res) => {
     if (req.headers.authorization !== "valid-session-token") {
@@ -86,6 +81,4 @@ app.post("/submit", async (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 5174;
-console.log(`AUTH_PASSWORD: ${AUTH_PASSWORD}`);
-console.log(`RAW AUTH_PASSWORD: ${process.env.AUTH_PASSWORD}`);
 app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
