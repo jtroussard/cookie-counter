@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Modal, Button } from "react-bootstrap";
 
 const PrivatePage = () => {
   const [inventory, setInventory] = useState([]);
@@ -8,6 +9,8 @@ const PrivatePage = () => {
     const saved = localStorage.getItem("stagedItems");
     return saved ? JSON.parse(saved) : [];
   });
+  const [showModal, setShowModal] = useState(false);
+
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -127,6 +130,13 @@ const PrivatePage = () => {
     setStagedItems([]);
   };
 
+  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
+  const confirmSubmit = () => {
+    handleSubmit();
+    handleCloseModal();
+  };
+
   // Render Helper Functions
   function renderStagedItem(item) {
     return (
@@ -165,7 +175,7 @@ const PrivatePage = () => {
         </div>
 
         {/* Staged Items Column */}
-        <div className="col-md-6">
+        <div className="col-md-6 mb-4">
           <div className="card shadow-sm">
             <div className="card-body">
               <h2 className="card-title text-center mb-3">Staged Cookies</h2>
@@ -173,20 +183,30 @@ const PrivatePage = () => {
                 {stagedItems.length > 0 ? stagedItems.map(renderStagedItem) : <span className="text-muted">No Cookies Here! Click the Add buttons to stage some cookies.</span>}
               </ul>
             </div>
+            <Modal show={showModal} onHide={handleCloseModal} centered>
+              <Modal.Header closeButton>
+                <Modal.Title>Confirm Submission</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                Are you sure you want to submit the staged cookies?
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleCloseModal}>Cancel</Button>
+                <Button variant="primary" onClick={confirmSubmit}>Confirm</Button>
+              </Modal.Footer>
+            </Modal>
+            <div className="card-footer d-flex mt-2 justify-content-center">
+              {/* Buttons Section */}
+              <button className="btn btn-success mx-2" onClick={handleShowModal} disabled={stagedItems.length === 0 || submitting}>
+                {submitting ? "Saving..." : "Save"}
+              </button>
+              <button className="btn btn-danger mx-2" onClick={handleClearStagedItems} disabled={stagedItems.length === 0 || submitting}>
+                Reset
+              </button>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Buttons Section */}
-      <div className="mt-5 text-center sticky-bottom bg-light py-3">
-        <button className="btn btn-success mx-2" onClick={handleSubmit} disabled={stagedItems.length === 0 || submitting}>
-          {submitting ? "Saving..." : "Save"}
-        </button>
-        <button className="btn btn-danger mx-2" onClick={handleClearStagedItems} disabled={stagedItems.length === 0 || submitting}>
-          Reset
-        </button>
-      </div>
-
     </div>
   );
 
