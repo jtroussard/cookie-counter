@@ -14,6 +14,14 @@ app.use(cors());
 const AUTH_PASSWORD = process.env.AUTH_PASSWORD;
 const GOOGLE_SHEETS_API = process.env.GOOGLE_SHEETS_API;
 
+app.get("/debug-env", (req, res) => {
+    res.json({
+        AUTH_PASSWORD: process.env.AUTH_PASSWORD,
+        GOOGLE_SHEETS_API: process.env.GOOGLE_SHEETS_API
+    });
+});
+
+
 // Authentication route
 app.post("/auth", (req, res) => {
     const { password } = req.body;
