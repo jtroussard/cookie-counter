@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const PrivatePage = () => {
   const [inventory, setInventory] = useState([]);
@@ -30,6 +31,7 @@ const PrivatePage = () => {
         }
       } catch (err) {
         setError(`Server error, try again later: ${err}`);
+        toast.error(`Server error, try again later: ${err}`);
       } finally {
         setLoading(false);
       }
@@ -81,6 +83,9 @@ const PrivatePage = () => {
     console.log(`Submitting staged items: ${JSON.stringify(stagedItems)}`);
     if (stagedItems.length === 0) return;
 
+    setLoading(true);
+    setError("");
+
     try {
       const response = await fetch("http://localhost:5174/submit", {
         method: "POST",
@@ -97,16 +102,20 @@ const PrivatePage = () => {
       if (data.success) {
         console.log("[PrivatePage] Successfully submitted staged items");
         setStagedItems([]);
+        toast.success("Items submitted successfully");
       } else {
         setError(data.message || "Failed to submit staged items");
+        toast.error(data.message || "Failed to submit staged items");
       }
     } catch (err) {
       setError(`Server error, try again later: ${err}`);
+    } finally {
+      setLoading(false);
     }
   };
 
   if (loading) return <p>Loading inventory...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  // if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div>
@@ -131,7 +140,7 @@ const PrivatePage = () => {
       </ul>
 
       <button onClick={handleSubmit} disabled={stagedItems.length === 0}>
-        Submit Staged Items
+        {loading ? "Submitting..." : "Submit Staged Items"}
       </button>
     </div>
   );

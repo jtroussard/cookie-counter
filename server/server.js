@@ -5,6 +5,8 @@ import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
 
+import { MSG_ERROR_GENERIC, MSG_ERROR_PASSWORD } from "./constants.js";
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -18,14 +20,14 @@ app.post("/auth", (req, res) => {
     if (password === AUTH_PASSWORD) {
         return res.json({ success: true, token: "valid-session-token" });
     }
-    return res.status(401).json({ success: false, message: "Invalid password" });
+    return res.status(401).json({ success: false, message: MSG_ERROR_PASSWORD });
 });
 
 // Fetch inventory data
 app.get("/inventory", async (req, res) => {
     if (req.headers.authorization !== "valid-session-token") {
         console.log("Failed authorization");
-        return res.status(403).json({ success: false, message: "Unauthorized" });
+        return res.status(403).json({ success: false, message: MSG_ERROR_UNAUTHORIZED });
     }
 
     try {
@@ -33,7 +35,7 @@ app.get("/inventory", async (req, res) => {
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        res.status(500).json({ success: false, message: "Failed to fetch inventory" });
+        res.status(500).json({ success: false, message: MSG_ERROR_UNABLE_TO_FETCH_INVENTORY });
     }
 });
 
@@ -43,14 +45,14 @@ app.post("/submit", async (req, res) => {
     // Authorized?
     if (req.headers.authorization !== "valid-session-token") {
         console.log("Failed authorization");
-        return res.status(403).json({ success: false, message: "Unauthorized" });
+        return res.status(403).json({ success: false, message: MSG_ERROR_UNAUTHORIZED });
     }
 
     // Validation, anything to submit?
     const stagedItems = req.body;
     if (!Array.isArray(stagedItems) || stagedItems.length === 0) {
-        console.log("No items to submit");
-        return res.status(400).json({ success: false, message: "No items to submit" });
+        console.log("[SERVER] No items to submit");
+        return res.status(400).json({ success: false, message: MSG_ERROR_GENERIC });
     }
 
     // Lets try to submit and update the inventory
@@ -67,13 +69,13 @@ app.post("/submit", async (req, res) => {
 
         console.log(`Checking response status ${data.success}`)
         if (data.success) {
-            return res.json({ success: true, message: "Items submittied successfully" });
+            return res.json({ success: true, message: MSG_SUCCESS_SUBMITTED });
         } else {
-            return res.status(500).json({ success: false, message: "Failed to submit items" });
+            return res.status(500).json({ success: false, message: MSG_ERROR_GENERIC });
         }
     } catch (err) {
         console.log(`Failed to submit items: ${err}`);
-        res.status(500).json({ success: false, message: `Failed to submit items: ${err}` });
+        res.status(500).json({ success: false, message: MSG_ERROR_GENERIC });
     }
 });
 
