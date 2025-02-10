@@ -6,3 +6,4 @@ export const MSG_ERROR_UNAUTHORIZED = "Unauthorized";
 export const MSG_ERROR_UNABLE_TO_FETCH_INVENTORY = "Unable to fetch inventory";
 
 export const MSG_SUCCESS_SUBMITTED = "Items submitted successfully";
+export const MSG_SUCCESS_HEALTHCHECK = "Healthy";

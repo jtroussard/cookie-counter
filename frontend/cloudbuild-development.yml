@@ -1,0 +1,11 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'BUILD_MODE=development'
+      - '-t'
+      - 'gcr.io/cookie-counter-450419/cookie-counter-frontend-dev'
+      - '.'
+images:
+  - 'gcr.io/cookie-counter-450419/cookie-counter-frontend-dev'
