@@ -13,6 +13,10 @@ app.use(cors());
 
 const AUTH_PASSWORD = (process.env.AUTH_PASSWORD || "").trim(); // GCP secret adds a newline to the value for some reason
 const GOOGLE_SHEETS_API = process.env.GOOGLE_SHEETS_API;
+const FAILED_ATTEMPTS_LIMIT = 5;
+const LOCK_TIME_MS = 5 * 60 * 1000;
+
+const failedAttempts = {};
 
 // Helthcheck route
 app.get("/health", (req, res) => {
@@ -21,12 +25,44 @@ app.get("/health", (req, res) => {
 
 // Authentication route
 app.post("/auth", (req, res) => {
+    const ip = req.ip;
     const { password } = req.body;
+
+    console.log(`[AUTH] Request from IP: ${ip}`);
+
+    // Initialize tracking if not present
+    if (!failedAttempts[ip]) {
+        failedAttempts[ip] = { count: 0, lockUntil: null };
+        console.log(`[AUTH] Initializing failed attempts tracking for ${ip}`);
+    }
+
+    // Check if IP is locked
+    if (failedAttempts[ip].lockUntil && Date.now() < failedAttempts[ip].lockUntil) {
+        console.log(`[AUTH] IP ${ip} is locked until ${new Date(failedAttempts[ip].lockUntil).toISOString()}`);
+        return res.status(403).json({ success: false, message: "Too many failed attempts. Try again later." });
+    }
+
+    // Correct password: Reset attempts and allow access
     if (password === AUTH_PASSWORD) {
+        console.log(`[AUTH] Successful login from ${ip}, resetting failed attempts.`);
+        failedAttempts[ip] = { count: 0, lockUntil: null };
         return res.json({ success: true, token: "valid-session-token" });
     }
+
+    // Incorrect password: Increment failed attempts
+    failedAttempts[ip].count += 1;
+    console.log(`[AUTH] Failed attempt ${failedAttempts[ip].count}/${FAILED_ATTEMPTS_LIMIT} from ${ip}`);
+
+    // Lock the IP if failed attempts exceed limit
+    if (failedAttempts[ip].count >= FAILED_ATTEMPTS_LIMIT) {
+        failedAttempts[ip].lockUntil = Date.now() + LOCK_TIME_MS;
+        console.log(`[AUTH] IP ${ip} is locked for ${LOCK_TIME_MS / 1000} seconds until ${new Date(failedAttempts[ip].lockUntil).toISOString()}`);
+        return res.status(403).json({ success: false, message: "Too many failed attempts. The app is temporarily locked." });
+    }
+
     return res.status(401).json({ success: false, message: messages.MSG_ERROR_PASSWORD });
 });
+
 
 // Fetch inventory data
 app.get("/inventory", async (req, res) => {
