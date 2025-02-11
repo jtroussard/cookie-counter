@@ -1,5 +1,9 @@
 # Cookie Counter App
 
+## PIN
+
+- still working on setting up a cloud dev env
+
 ## Screenshots
 
 ![login screen](https://file%2B.vscode-resource.vscode-cdn.net/Users/mm_sparrow/Projects/cookie-counter/public/Screenshot%202025-02-09%20at%204.56.33%E2%80%AFPM.png?version%3D1739138225759)  
@@ -50,67 +54,112 @@ echo -n "new-password" | gcloud secrets versions add AUTH_PASSWORD --data-file=-
 echo -n "https://new-google-sheets-api-url" | gcloud secrets versions add GOOGLE_SHEETS_API --data-file=-
 ```
 
-## Backend (Server) Deployment
-The backend is located in the server/ directory and deployed as a Node.js app using Google Cloud Run.
+## Backend (Server) Deployment (PROD)
+The backend is located in the backend/ directory and deployed as a Node.js app using Google Cloud Run.
 
 ### Build & Push the Backend Image
 
 ```sh
-cd server
+cd backend
 ```
 
+# Cloud Commands
 ```sh
 gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-backend
-```
 
-### Deploy the Backend to Cloud Run
-```sh
 gcloud run deploy cookie-counter-backend \
   --image gcr.io/cookie-counter-450419/cookie-counter-backend \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
   --set-secrets AUTH_PASSWORD=AUTH_PASSWORD:latest,GOOGLE_SHEETS_API=GOOGLE_SHEETS_API:latest
-```
 
-### Get the Backend URL
-
-```sh
 gcloud run services describe cookie-counter-backend --region us-central1 --format="value(status.url)"
 ```
 
-## Frontend Deployment
+## Backend (Server) Deployment (DEV)
+The backend is located in the backend/ directory and deployed as a Node.js app using Google Cloud Run.
+
+### Build & Push the Backend Image
+
+```sh
+cd backend
+```
+
+# Cloud Commands
+```sh
+gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-backend-dev
+
+gcloud run deploy cookie-counter-backend-dev \
+  --image gcr.io/cookie-counter-450419/cookie-counter-backend-dev \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-secrets AUTH_PASSWORD=AUTH_PASSWORD_DEV:latest,GOOGLE_SHEETS_API=GOOGLE_SHEETS_API_DEV:latest
+
+gcloud run services describe cookie-counter-backend-dev --region us-central1 --format="value(status.url)"
+```
+
+## Frontend Deployment (PROD)
 The frontend is built with Vite + React and served using Google Cloud Run.
 
-### Build & Push the Frontend Image
-
 ```sh
-cd cookie-counter
+cd frontend
 ```
 
-### Build the frontend
-
+### Cloud Commands
 ```sh
-npm run build
-```
+gcloud builds submit --config cloudbuild-production.yml
 
-### Submit the build to Google Cloud Build
-```sh
-gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-frontend
-```
-
-### Deploy the Frontend to Cloud Run
-```sh
 gcloud run deploy cookie-counter-frontend \
   --image gcr.io/cookie-counter-450419/cookie-counter-frontend \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated
+
+gcloud run services describe cookie-counter-frontend --region us-central1 --format="value(status.url)"
 ```
 
-### Get the Frontend URL
+## Frontend Deployment (DEV)
+The frontend is built with Vite + React and served using Google Cloud Run.
+
+### Build & Push the Frontend Image
+
 ```sh
-gcloud run services describe cookie-counter-frontend --region us-central1 --format="value(status.url)"
+cd frontend
+```
+
+### Submit the build to Google Cloud Build
+```sh
+gcloud builds submit --config cloudbuild-development.yml
+
+gcloud run deploy cookie-counter-frontend-dev \
+  --image gcr.io/cookie-counter-450419/cookie-counter-frontend-dev \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated
+
+gcloud run services describe cookie-counter-frontend-dev --region us-central1 --format="value(status.url)"
+```
+
+## Frontend Deployment (LOCAL)
+
+### Using Docker
+```sh
+cd frontend
+
+docker build --build-arg BUILD_MODE=localhost -t cookie-counter-frontend:localhost .
+
+docker run -p 8080:8080 cookie-counter-frontend:localhost
+```
+
+### Using NPM
+```sh
+cd frontend
+
+npm install
+
+npm run dev:local
 ```
 
 ## Updating & Redeploying
@@ -118,33 +167,6 @@ If you make any code changes to the backend or frontend, you need to:
 
 - Rebuild the Docker image
 - Redeploy the updated version to Cloud Run
-
-### Update the Backend
-```sh
-cd server
-gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-backend
-
-gcloud run deploy cookie-counter-backend \
-  --image gcr.io/cookie-counter-450419/cookie-counter-backend \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --set-secrets AUTH_PASSWORD=AUTH_PASSWORD:latest,GOOGLE_SHEETS_API=GOOGLE_SHEETS_API:latest
-```
-
-### Update the Frontend
-```sh
-cd cookie-counter
-npm run build
-
-gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-frontend
-
-gcloud run deploy cookie-counter-frontend \
-  --image gcr.io/cookie-counter-450419/cookie-counter-frontend \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated
-```
 
 ## Viewing Logs & Debugging
 To check logs for the backend:
@@ -198,9 +220,13 @@ gcloud logging logs delete run.googleapis.com%2Frequests
 |---------------------|---------|
 | **Build Backend**   | `gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-backend` |
 | **Deploy Backend**  | `gcloud run deploy cookie-counter-backend --image gcr.io/cookie-counter-450419/cookie-counter-backend --platform managed --region us-central1 --allow-unauthenticated --set-secrets AUTH_PASSWORD=AUTH_PASSWORD:latest,GOOGLE_SHEETS_API=GOOGLE_SHEETS_API:latest` |
-| **Build Frontend**  | `npm run build && gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-frontend` |
+| **Build Frontend**  | `gcloud builds submit --config {cloudbuild-yml-file}` |
 | **Deploy Frontend** | `gcloud run deploy cookie-counter-frontend --image gcr.io/cookie-counter-450419/cookie-counter-frontend --platform managed --region us-central1 --allow-unauthenticated` |
 | **Check Backend Logs** | `gcloud run services logs read cookie-counter-backend --region us-central1 --limit 50` |
 | **Check Frontend Logs** | `gcloud run services logs read cookie-counter-frontend --region us-central1 --limit 50` |
 | **Get Backend URL** | `gcloud run services describe cookie-counter-backend --region us-central1 --format="value(status.url)"` |
 | **Get Frontend URL** | `gcloud run services describe cookie-counter-frontend --region us-central1 --format="value(status.url)"` |
+
+
+## Known issues
+1. If the "database" is out of sync with the front end the invetory never recovers. To duplicate, open two windows, create a transaction with one, then another transaction with another, then move back to the original and create another tranasaction. The resulting invetory on the first instance will be out of sync with the database.

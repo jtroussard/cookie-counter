@@ -14,6 +14,11 @@ app.use(cors());
 const AUTH_PASSWORD = (process.env.AUTH_PASSWORD || "").trim(); // GCP secret adds a newline to the value for some reason
 const GOOGLE_SHEETS_API = process.env.GOOGLE_SHEETS_API;
 
+// Helthcheck route
+app.get("/health", (req, res) => {
+    res.json({ success: true, message: messages.MSG_SUCCESS_HEALTHCHECK });
+});
+
 // Authentication route
 app.post("/auth", (req, res) => {
     const { password } = req.body;
