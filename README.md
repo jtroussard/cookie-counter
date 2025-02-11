@@ -1,8 +1,10 @@
 # Cookie Counter App
 
-## PIN
+## TODO
 
-- still working on setting up a cloud dev env
+1. backend sync issue
+1. password retry attempts
+1. token investigation
 
 ## Screenshots
 
@@ -63,7 +65,7 @@ The backend is located in the backend/ directory and deployed as a Node.js app u
 cd backend
 ```
 
-# Cloud Commands
+### Cloud Commands
 ```sh
 gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-backend
 
@@ -86,7 +88,7 @@ The backend is located in the backend/ directory and deployed as a Node.js app u
 cd backend
 ```
 
-# Cloud Commands
+### Cloud Commands
 ```sh
 gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-backend-dev
 
