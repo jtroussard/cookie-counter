@@ -15,7 +15,6 @@ const PrivatePage = () => {
   // });
   const [stagedItems, setStagedItems] = useState([]);
   const [showModal, setShowModal] = useState(false);
-
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -32,37 +31,45 @@ const PrivatePage = () => {
 
   useEffect(() => {
     const fetchInventory = async () => {
-      const token = localStorage.getItem("sessionToken");
+      console.log('[EFFECT] Fetching inventory...');
+      setLoading(true);
+
+      const token = localStorage.getItem("token");
       if (!token) {
+        console.log("[EFFECT] No token found, redirecting to /");
         navigate("/");
         return;
       }
 
       try {
+        console.log("[EFFECT] Making API call...");
         const response = await fetch(`${API_URL}/inventory`, {
-          headers: { Authorization: token },
+          headers: { Authorization: token }
         });
 
         const data = await response.json();
 
         if (response.ok) {
+          console.log("[EFFECT] Inventory fetched successfully");
           setInventory(data);
         } else {
+          console.log(`[EFFECT] Failed to fetch inventory: ${data.message}`);
           setError(data.message || "Failed to load inventory");
         }
       } catch (err) {
+        console.log(`[EFFECT] Catch: ${err}`);
         setError(`Server error, try again later: ${err}`);
         toast.error(`Server error, try again later: ${err}`);
       } finally {
+        console.log("[EFFECT] Turning off spinner.");
         setLoading(false);
       }
     };
-
     fetchInventory();
   }, [navigate]);
 
   const handleStageItem = (item) => {
-    console.log(`Staging item: ${JSON.stringify(item)}`);
+    console.log(`[HANDLE] Staging item: ${JSON.stringify(item)}`);
 
     setStagedItems((prev) => {
       const existingItem = prev.find((staged) => staged.id === item.id);
@@ -84,7 +91,7 @@ const PrivatePage = () => {
   };
 
   const handleUnstageItem = (item) => {
-    console.log(`Unstaging item: ${JSON.stringify(item)}`);
+    console.log(`[HANDLE] Unstaging item: ${JSON.stringify(item)}`);
 
     setStagedItems((prev) =>
       prev.map((staged) =>
@@ -101,7 +108,7 @@ const PrivatePage = () => {
 
 
   const handleSubmit = async () => {
-    console.log(`Submitting staged items: ${JSON.stringify(stagedItems)}`);
+    console.log(`[HANDLE] Submitting staged items: ${JSON.stringify(stagedItems)}`);
     if (stagedItems.length === 0) return;
 
     setSubmitting(true);

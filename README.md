@@ -82,14 +82,10 @@ gcloud run services describe cookie-counter-backend --region us-central1 --forma
 ## Backend (Server) Deployment (DEV)
 The backend is located in the backend/ directory and deployed as a Node.js app using Google Cloud Run.
 
-### Build & Push the Backend Image
-
-```sh
-cd backend
-```
-
 ### Cloud Commands
 ```sh
+cd backend
+
 gcloud builds submit --tag gcr.io/cookie-counter-450419/cookie-counter-backend-dev
 
 gcloud run deploy cookie-counter-backend-dev \
@@ -100,6 +96,16 @@ gcloud run deploy cookie-counter-backend-dev \
   --set-secrets AUTH_PASSWORD=AUTH_PASSWORD_DEV:latest,GOOGLE_SHEETS_API=GOOGLE_SHEETS_API_DEV:latest
 
 gcloud run services describe cookie-counter-backend-dev --region us-central1 --format="value(status.url)"
+```
+
+## Backend Deployment (LOCAL)
+
+```sh
+cd backend
+
+npm install
+
+node server.js
 ```
 
 ## Frontend Deployment (PROD)

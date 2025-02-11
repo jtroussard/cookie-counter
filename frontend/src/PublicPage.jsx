@@ -5,7 +5,7 @@ import Loading from "./Loading";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const PublicPage = () => {
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(""); 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -23,9 +23,8 @@ const PublicPage = () => {
       });
 
       const data = await response.json();
-
       if (data.success) {
-        localStorage.setItem("sessionToken", data.token);
+        localStorage.setItem("token", data.token);
         navigate("/private");
       } else {
         setError("Invalid password");
