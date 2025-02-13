@@ -5,10 +5,18 @@ import Loading from "./Loading";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const PublicPage = () => {
-  const [password, setPassword] = useState(""); 
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const fetchCsrfToken = async () => {
+    const response = await fetch(`${API_URL}/csrf-token`, 
+      { credentials: "include" }
+    );
+    const data = await response.json();
+    return data.csrfToken;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,15 +24,19 @@ const PublicPage = () => {
     setLoading(true);
 
     try {
+      const csrfToken = await fetchCsrfToken();
       const response = await fetch(`${API_URL}/auth`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-csrf-token": csrfToken
+        },
+        credentials: "include",
         body: JSON.stringify({ password }),
       });
 
       const data = await response.json();
       if (data.success) {
-        localStorage.setItem("token", data.token);
         navigate("/private");
       } else {
         setError("Invalid password");

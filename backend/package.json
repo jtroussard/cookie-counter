@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
+    "start-local": "nodemon server.js",
+    "start-dev": "cross-env FRONTEND_URL=https://cookie-counter-frontend-dev-okpbpadzzq-uc.a.run.app nodemon server.js",
+    "start-prod": "cross-env FRONTEND_URL=https://cookie-counter-frontend-okpbpadzzq-uc.a.run.app node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,9 +18,15 @@
     "extends": "./eslint.config.js"
   },
   "dependencies": {
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
+    "csurf": "^1.11.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "node-fetch": "3.3.2"
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "3.3.2",
+    "nodemon": "^3.1.9"
   }
 }

@@ -6,7 +6,9 @@ export const MSG_ERROR_UNAUTHORIZED = "Unauthorized";
 export const MSG_ERROR_UNABLE_TO_FETCH_INVENTORY = "Unable to fetch inventory";
 export const MSG_ERROR_BAD_TOKEN = "Invalid or expired token";
 export const MSG_ERROR_TOO_MANY_ATTEMPTS = "Too many failed attempts. Try again later."
+export const MSG_ERROR_SERVER_MISCONFIGURATION = "Server misconfiguration";
 
 export const MSG_SUCCESS_SUBMITTED = "Items submitted successfully";
 export const MSG_SUCCESS_HEALTHCHECK = "Healthy";
 export const MSG_SUCCESS_AUTH = "Authenticated successfully";
+export const MSG_SUCCESS_LOGOUT = "Logged out successfully";

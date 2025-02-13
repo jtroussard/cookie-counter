@@ -34,6 +34,7 @@ const PrivatePage = () => {
       console.log('[EFFECT] Fetching inventory...');
       setLoading(true);
 
+      // re-work this logic to return the user if server gives a 401/403
       const token = localStorage.getItem("token");
       if (!token) {
         console.log("[EFFECT] No token found, redirecting to /");
