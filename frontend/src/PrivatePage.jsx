@@ -35,6 +35,7 @@ const PrivatePage = () => {
       setLoading(true);
 
       // re-work this logic to return the user if server gives a 401/403
+      // also figure out what is up with the servers env file and those extra variables in there now
       const token = localStorage.getItem("token");
       if (!token) {
         console.log("[EFFECT] No token found, redirecting to /");
